@@ -60,9 +60,9 @@ def main(args):
     backbone = get_model(
         cfg.network, dropout=0.0, fp16=cfg.fp16, num_features=cfg.embedding_size
     ).cuda()
+    print(weight)
     
-    if cfg.resume:
-        backbone.load_state_dict(torch.load(weight))
+    backbone.load_state_dict(torch.load(weight))
 
     backbone = torch.nn.parallel.DistributedDataParallel(
         module=backbone, broadcast_buffers=False, device_ids=[args.local_rank], bucket_cap_mb=16, 
