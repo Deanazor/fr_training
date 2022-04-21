@@ -56,13 +56,19 @@ def main(args):
     train_loader = get_dataloader(
         cfg.rec, local_rank=args.local_rank, batch_size=cfg.batch_size, dali=cfg.dali)
 
-    weight = os.path.join(cfg.output, "backbone.pth")
     backbone = get_model(
         cfg.network, dropout=0.0, fp16=cfg.fp16, num_features=cfg.embedding_size
     ).cuda()
-    print(weight)
-    
-    backbone.load_state_dict(torch.load(weight))
+
+    if cfg.resume:
+        try:
+            backbone_pth = os.path.join(cfg.output, "backbone.pth")
+            backbone.load_state_dict(torch.load(backbone_pth, map_location=torch.device(args.local_rank)))
+            if rank == 0:
+                logging.info("backbone resume successfully!")
+        except (FileNotFoundError, KeyError, IndexError, RuntimeError):
+            if rank == 0:
+                logging.info("resume fail, backbone init successfully!")
 
     backbone = torch.nn.parallel.DistributedDataParallel(
         module=backbone, broadcast_buffers=False, device_ids=[args.local_rank], bucket_cap_mb=16, 
