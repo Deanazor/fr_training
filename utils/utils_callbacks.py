@@ -13,12 +13,13 @@ from torch import distributed
 
 class CallBackVerification(object):
     
-    def __init__(self, val_targets, rec_prefix, summary_writer=None, image_size=(112, 112)):
+    def __init__(self, val_targets, rec_prefix, cfg, summary_writer=None, image_size=(112, 112)):
         self.rank: int = distributed.get_rank()
         self.highest_acc: float = 0.0
         self.highest_acc_list: List[float] = [0.0] * len(val_targets)
         self.ver_list: List[object] = []
         self.ver_name_list: List[str] = []
+        self.cfg=cfg
         if self.rank is 0:
             self.init_dataset(val_targets=val_targets, data_dir=rec_prefix, image_size=image_size)
 
@@ -37,6 +38,14 @@ class CallBackVerification(object):
 
             if acc2 > self.highest_acc_list[i]:
                 self.highest_acc_list[i] = acc2
+                if self.rank == 0:
+                    path_module = os.path.join(self.cfg.output, "model_best.pth")
+                    try:
+                        state_dict = backbone.module.state_dict()
+                    except AttributeError:
+                        state_dict = backbone.state_dict()
+                    torch.save(state_dict, path_module)
+                    
             logging.info(
                 '[%s][%d]Accuracy-Highest: %1.5f' % (self.ver_name_list[i], global_step, self.highest_acc_list[i]))
             results.append(acc2)

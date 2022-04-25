@@ -121,7 +121,7 @@ def main(args):
         logging.info(": " + key + " " * num_space + str(value))
 
     callback_verification = CallBackVerification(
-        val_targets=cfg.val_targets, rec_prefix=cfg.rec, summary_writer=summary_writer
+        val_targets=cfg.val_targets, rec_prefix=cfg.rec, cfg=cfg, summary_writer=summary_writer
     )
     callback_logging = CallBackLogging(
         frequent=cfg.frequent,
@@ -168,7 +168,7 @@ def main(args):
         path_pfc = os.path.join(cfg.output, "softmax_fc_gpu_{}.pth".format(rank))
         torch.save(module_partial_fc.state_dict(), path_pfc)
         if rank == 0:
-            path_module = os.path.join(cfg.output, "model.pth")
+            path_module = os.path.join(cfg.output, "model_{}.pth".format(epoch))
             try:
                 state_dict = backbone.module.state_dict()
             except AttributeError:
