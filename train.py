@@ -174,6 +174,14 @@ def main(args):
             except AttributeError:
                 state_dict = backbone.state_dict()
             torch.save(state_dict, path_module)
+
+            path_ckpt = os.path.join(cfg.output, "model_{}.ckpt".format(epoch))
+            torch.save({
+                'epoch' : epoch,
+                'model_state_dict' : state_dict,
+                'optimizer' : opt.state_dict(),
+                "partial_fc" : module_partial_fc.state_dict(),
+            }, path_ckpt)
         
         if cfg.dali:
             train_loader.reset()
