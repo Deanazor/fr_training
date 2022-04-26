@@ -15,13 +15,13 @@ config.fp16 = True
 config.momentum = 0.9
 config.weight_decay = 5e-4
 config.batch_size = 256
-config.lr = 0.4
+config.lr = 0.1
 config.verbose = 500
 config.dali = False
 
 config.rec = "train_tmp/faces_webface_112x112"
 config.num_classes = 10572
 config.num_image = 500000
-config.num_epoch = 20
-config.warmup_epoch = 2
+config.num_epoch = 2
+config.warmup_epoch = 1
 config.val_targets = ['lfw']
